@@ -5,80 +5,7 @@ const NoteState = (props) => {
 
     const host = "http://localhost:5000";
 
-    const intitialNotes = [
-      {
-        "_id": "65a431174b39d8ef29bb07c4",
-        "user": "65a430974b39d8ef29bb07b9",
-        "title": "Better EveryDay",
-        "description": "My description2",
-        "tag": "Target",
-        "date": "2024-01-14T19:08:07.816Z",
-        "__v": 0
-      },
-      {
-        "_id": "65a4312c4b39d8ef29bb07c3",
-        "user": "65a430974b39d8ef29bb07b9",
-        "title": "Sorry For Today",
-        "description": "My description2",
-        "tag": "Target",
-        "date": "2024-01-14T19:08:28.446Z",
-        "__v": 0
-      },
-      {
-        "_id": "65a431174b39d8ef29bb07c1",
-        "user": "65a430974b39d8ef29bb07b9",
-        "title": "Better EveryDay",
-        "description": "My description2",
-        "tag": "Target",
-        "date": "2024-01-14T19:08:07.816Z",
-        "__v": 0
-      },
-      {
-        "_id": "65a4312c4b39d8ef29bb07",
-        "user": "65a430974b39d8ef29bb07b9",
-        "title": "Sorry For Today",
-        "description": "My description2",
-        "tag": "Target",
-        "date": "2024-01-14T19:08:28.446Z",
-        "__v": 0
-      },
-      {
-        "_id": "65a431174b39d8ef29bb07",
-        "user": "65a430974b39d8ef29bb07b9",
-        "title": "Better EveryDay",
-        "description": "My description2",
-        "tag": "Target",
-        "date": "2024-01-14T19:08:07.816Z",
-        "__v": 0
-      },
-      {
-        "_id": "65a4312c4b39d8ef29bb07c2",
-        "user": "65a430974b39d8ef29bb07b9",
-        "title": "Sorry For Today",
-        "description": "My description2",
-        "tag": "Target",
-        "date": "2024-01-14T19:08:28.446Z",
-        "__v": 0
-      },
-      {
-        "_id": "65a431174b39d8ef29bb07c0",
-        "user": "65a430974b39d8ef29bb07b9",
-        "title": "Better EveryDay",
-        "description": "My description2",
-        "tag": "Target",
-        "date": "2024-01-14T19:08:07.816Z",
-        "__v": 0
-      },
-      {
-        "_id": "65a4312c4b39d8ef29bb07c",
-        "user": "65a430974b39d8ef29bb07b9",
-        "title": "Sorry For Today",
-        "description": "My description2",
-        "tag": "Target",
-        "date": "2024-01-14T19:08:28.446Z",
-        "__v": 0
-      }
-    ]
+    const intitialNotes = []
     
     const [Notes , setNotes] = useState(intitialNotes);
 
@@ -94,13 +21,13 @@ const NoteState = (props) => {
         credentials: "same-origin", 
         headers: {
           "Content-Type": "application/json",
-          "auth-token" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjVhNDMwOTc0YjM5ZDhlZjI5YmIwN2I5In0sImlhdCI6MTcwNTI1OTE4Mn0.ENwHHqg8FXVvFCxKhVyvkH51dNSXD5z8hdEK-67ihsk"
+          "auth-token" : localStorage.getItem('token')
         },
         redirect: "follow", 
         referrerPolicy: "no-referrer", 
       });
       const json = await response.json(); 
-      console.log(json);
+      // console.log(json);
       setNotes(json);
     }
 
@@ -108,41 +35,91 @@ const NoteState = (props) => {
     const addNote = async(title,description,tag)=>{
 
       //API call
+      const url = `${host}/api/notes/addnote`;
+      const response = await fetch(url, {
+        method: "POST", 
+        mode: "cors", 
+        cache: "no-cache", 
+        credentials: "same-origin", 
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token" : localStorage.getItem('token')
+        },
+        redirect: "follow", 
+        referrerPolicy: "no-referrer", 
+        body: JSON.stringify({title,description,tag})
+      });
 
+      const note = await response.json()
+      // console.log(note)
 
-      console.log("adding a new note");
-      const note = {
-        "_id": "65a4312c4b39d8ef29bb07c7",
-        "user": "65a430974b39d8ef29bb07b9",
-        "title": title,
-        "description": description,
-        "tag": tag,
-        "date": "2024-01-14T19:08:28.446Z",
-        "__v": 0
-      }
-      console.log(Notes.concat(note));
+      
+      // console.log(Notes.concat(note));
       setNotes(Notes.concat(note));
     }
+
+    
     // Delete a Note
-    const deleteNote = (id)=>{
-      console.log("deleting a note " + id);
+    const deleteNote = async(id)=>{
+      // console.log("deleting a note " + id);
+
+      //APi call
+      const url = `${host}/api/notes/deletenote/${id}`;
+      const response = await fetch(url, {
+        method: "DELETE", 
+        mode: "cors", 
+        cache: "no-cache", 
+        credentials: "same-origin", 
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token" : localStorage.getItem('token')
+        },
+        redirect: "follow", 
+        referrerPolicy: "no-referrer",
+      });
+      const json = await response.json(); 
+      console.log(json);
+
       const newNote = Notes.filter((note)=>note._id !== id);
       setNotes(newNote);
     }
+
+
     // Edit a Note
-    const editNote = (id,title,description,tag)=>{
+    const editNote = async(id,title,description,tag)=>{
+
       //APi call
+      const url = `${host}/api/notes/updatenote/${id}`;
+      const response = await fetch(url, {
+        method: "PUT", 
+        mode: "cors", 
+        cache: "no-cache", 
+        credentials: "same-origin", 
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token" : localStorage.getItem('token')
+        },
+        redirect: "follow", 
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify({title,description,tag}) 
+      });
+      const json = await response.json(); 
+      console.log(json);
+
+      let newNotes = JSON.parse(JSON.stringify(Notes));
 
       // Logic to edit a note
-      for (let index = 0; index < Notes.length; index++) {
-        const element = Notes[index];
+      for (let index = 0; index < newNotes.length; index++) {
+        const element = newNotes[index];
         if(element._id === id){
           element.title = title;
           element.description = description;
           element.tag = tag;
+          break;
         }
-        
       }
+
+      setNotes(newNotes);
     }
 
   return (

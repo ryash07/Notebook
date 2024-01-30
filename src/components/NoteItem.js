@@ -7,12 +7,17 @@ import noteContext from '../context/noteContext';
 
 const NoteItem = (props) => {
 
-    const {Note} = props;
+    const {Note,updateNote} = props;
     const context = useContext(noteContext);
     const {deleteNote} = context;
 
     const handleDelete = ()=>{
       deleteNote(Note._id);
+      props.alert("Note deleted successfully","danger");
+    }
+
+    const handleEditClick =()=>{
+      updateNote(Note);
     }
 
   return (
@@ -24,7 +29,7 @@ const NoteItem = (props) => {
             <div className="d-flex align-items-center">
                 <h5 className="card-title">{Note.title}</h5>
                 <FontAwesomeIcon className='mx-2' icon={faTrashCan} onClick={handleDelete}/>
-                 <FontAwesomeIcon className='mx-2' icon={faPenToSquare} />
+                 <FontAwesomeIcon className='mx-2' icon={faPenToSquare} onClick={handleEditClick}/>
             </div>
             
             <p className="card-text">{Note.description}</p>

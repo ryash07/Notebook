@@ -15,6 +15,7 @@ router.post('/createuser',[
     body('password','Password lenght must be 5 characters').isLength({ min:5})
 ],async(req,res)=>{
 
+    let success = false;
     const result = validationResult(req);
     if(result.isEmpty()){
 
@@ -22,7 +23,8 @@ router.post('/createuser',[
         try{
             let user = await User.findOne({email:req.body.email});
             if(user){
-                return res.status(400).json({error:'Email is already registered'});
+                console.log("main");
+                return res.status(400).json({success ,error:'Email is already registered'});
             }
            
             // password converted to cipher
@@ -36,7 +38,7 @@ router.post('/createuser',[
                 email: req.body.email,
             })
             .catch(err=> {console.log(err)
-                res.json({error: err.array()});
+                res.json({success,error: err.array()});
             });
 
             //JWT token to the user
@@ -45,8 +47,9 @@ router.post('/createuser',[
                     id:user.id
                 }
             }
+            success = true;
             var authtoken = jwt.sign(data, JWT_SECRET);
-            res.json({authtoken});
+            res.json({success,authtoken});
 
         }catch(error){
             console.log(error.message);
@@ -63,15 +66,19 @@ router.post('/login',[
     body('email','Enter a valid email').isEmail(),
     body('password','Password lenght must be 5 characters').isLength({ min:5})
 ],async(req,res)=>{
+
+    let success = false;
     const result = validationResult(req);
     if(!result.isEmpty()){
-        res.status(400).json({results:results.array()});
+        success = false;
+        res.status(400).json({success,results:results.array()});
     }
 
     const{email,password} = req.body;
     try{
         let user = await User.findOne({email});
         if(!user){
+            success = false;
             return res.status(400).json({msg:'Invalid credentials'});
         }
 
@@ -86,7 +93,8 @@ router.post('/login',[
             }
         }
         var authtoken = jwt.sign(data, JWT_SECRET);
-        res.json({authtoken});
+        success = true;
+        res.json({success , authtoken});
 
     }catch(error){
         console.log(error.message);
